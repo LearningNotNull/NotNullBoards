@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { IoMdLogOut } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import { setLogout } from "./lib/features/auth";
+import logo from './images/index'
 
 export default function Navbar() {
   const dispatch = useAppDispatch();
@@ -90,7 +91,9 @@ export default function Navbar() {
               <div className="flex flex-shrink-0 items-center">
                 <img
                   className="h-8 w-auto"
+                  
                   src="https://i.ibb.co/MR2tFCg/Logo.png"
+
                   alt="Your Company"
                 />
               </div>
