@@ -70,7 +70,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/tickets/all`, {
+      .get(`https://notnullboards.onrender.com/tickets/all`, {
         headers: {
           authorization: `Bearer ${token}`
         }
@@ -96,7 +96,7 @@ export default function Dashboard() {
   const createTicketFun = () => {
     axios
       .post(
-        `http://localhost:5000/tickets/create`,
+        `https://notnullboards.onrender.com/tickets/create`,
         {
           title,
           photo,
@@ -123,7 +123,7 @@ export default function Dashboard() {
   const updateTicketFun = (id) => {
     axios
       .put(
-        `http://localhost:5000/tickets/update/${id}`,
+        `https://notnullboards.onrender.com/tickets/update/${id}`,
         {
           title,
           photo,
@@ -149,7 +149,7 @@ export default function Dashboard() {
 
   const deleteTicketFun = (id) => {
     axios
-      .delete(`http://localhost:5000/tickets/delete/${id}`, {
+      .delete(`https://notnullboards.onrender.com/tickets/delete/${id}`, {
         headers: {
           authorization: `Bearer ${token}`
         }
@@ -429,7 +429,10 @@ export default function Dashboard() {
                             <div className="inline-flex items-center gap-x-3">
                               <span className="text-gray-500 dark:text-gray-400">
                                 <img
-                                  src={ticketItem.cover}
+                                  src={
+                                    ticketItem.cover ||
+                                    "https://i.ibb.co/MR2tFCg/Logo.png"
+                                  }
                                   alt="cover"
                                   className="w-10 h-10 rounded-full"
                                 />
@@ -609,7 +612,7 @@ export default function Dashboard() {
                 <div class="flex flex-col items-center p-10">
                   <img
                     class="w-24 h-24 mb-3 rounded-full shadow-lg"
-                    src={item.cover}
+                    src={item.cover || "https://i.ibb.co/MR2tFCg/Logo.png"}
                     alt="Bonnie image"
                   />
                   <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">

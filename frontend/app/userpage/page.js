@@ -7,6 +7,7 @@ import { setUserInfo } from "../lib/features/userSlice";
 import { storage } from "../../app/firebase";
 import { ref, uploadBytes, listAll, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
+import { setTickets } from "../lib/features/ticket";
 
 const ProfilePage = () => {
   const dispatch = useAppDispatch();
@@ -15,10 +16,11 @@ const ProfilePage = () => {
   const [imageUrl, setImageUrl] = useState(null);
   const [imageUpload, setImageUpload] = useState(null);
   const [imageList, setImageList] = useState([]);
-  const { token, user, userId } = useAppSelector((state) => ({
+  const { token, user, userId, ticket } = useAppSelector((state) => ({
     token: state.auth.token,
     userId: state.auth.userId,
-    user: state.user.user
+    user: state.user.user,
+    ticket: state.tickets.tickets
   }));
 
   useEffect(() => {
@@ -26,9 +28,23 @@ const ProfilePage = () => {
     fetchImageList();
   }, []);
 
+  useEffect(() => {
+    axios
+      .get(`https://notnullboards.onrender.com/tickets/all`, {
+        headers: {
+          authorization: `Bearer ${token}`
+        }
+      })
+      .then((result) => {
+        dispatch(setTickets(result.data.result.rows));
+      })
+      .catch((err) => {
+        console.error(err.response ? err.response.data : err.message);
+      });
+  }, [dispatch, token]);
   const fetchUserInfo = () => {
     axios
-      .get("http://localhost:5000/users", {
+      .get("https://notnullboards.onrender.com/users", {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -53,7 +69,7 @@ const ProfilePage = () => {
     if (isDataModified) {
       axios
         .put(
-          "http://localhost:5000/users/update",
+          "https://notnullboards.onrender.com/users/update",
           {
             photo: imageUrl || user.photo,
             about: about || user.about,
@@ -100,6 +116,14 @@ const ProfilePage = () => {
       .catch((error) => {
         console.error("Error uploading image:", error);
       });
+  };
+  const [show, setShow] = useState(false);
+  const [drop, setDrop] = useState(false);
+  const toggleDropdown = () => {
+    setDrop(!drop);
+  };
+  const toggleDrawer = () => {
+    setShow(!show);
   };
 
   const fetchImageList = () => {
@@ -386,45 +410,182 @@ const ProfilePage = () => {
                 <h2 class="text-xl font-bold mt-6 mb-4">Ticket</h2>
                 <div class="mb-6">
                   <div class="flex justify-between flex-wrap gap-2 w-full">
-                    <span class="text-gray-700 font-bold">Web Developer</span>
-                    <p>
-                      <span class="text-gray-700 mr-2">at ABC Company</span>
-                      <span class="text-gray-700">2017 - 2019</span>
-                    </p>
+                    <p></p>
                   </div>
-                  <p class="mt-2">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                    finibus est vitae tortor ullamcorper, ut vestibulum velit
-                    convallis. Aenean posuere risus non velit egestas suscipit.
-                  </p>
-                </div>
-                <div class="mb-6">
-                  <div class="flex justify-between flex-wrap gap-2 w-full">
-                    <span class="text-gray-700 font-bold">Web Developer</span>
-                    <p>
-                      <span class="text-gray-700 mr-2">at ABC Company</span>
-                      <span class="text-gray-700">2017 - 2019</span>
-                    </p>
-                  </div>
-                  <p class="mt-2">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                    finibus est vitae tortor ullamcorper, ut vestibulum velit
-                    convallis. Aenean posuere risus non velit egestas suscipit.
-                  </p>
-                </div>
-                <div class="mb-6">
-                  <div class="flex justify-between flex-wrap gap-2 w-full">
-                    <span class="text-gray-700 font-bold">Web Developer</span>
-                    <p>
-                      <span class="text-gray-700 mr-2">at ABC Company</span>
-                      <span class="text-gray-700">2017 - 2019</span>
-                    </p>
-                  </div>
-                  <p class="mt-2">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                    finibus est vitae tortor ullamcorper, ut vestibulum velit
-                    convallis. Aenean posuere risus non velit egestas suscipit.
-                  </p>
+                  {ticket.map((ticketItem) => (
+                    <tr key={ticketItem.title}>
+                      <td className="px-4 py-4 text-sm font-medium whitespace-nowrap">
+                        <div>
+                          <h2 className="font-medium text-gray-800 dark:text-white ">
+                            {ticketItem.id}
+                          </h2>
+                        </div>
+                      </td>
+                      <td className="px-12 py-4 text-sm font-medium whitespace-nowrap">
+                        <div className="inline-flex items-center px-3 py-1 rounded-full gap-x-2 bg-emerald-100/60 dark:bg-gray-800">
+                          <h2 className="text-sm font-normal text-emerald-500">
+                            {ticketItem.title}
+                          </h2>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-sm whitespace-nowrap">
+                        <div>
+                          <h4 className="text-gray-700 dark:text-gray-200">
+                            {ticketItem.description}
+                          </h4>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-sm whitespace-nowrap">
+                        <div className="inline-flex items-center gap-x-3">
+                          <span className="text-gray-500 dark:text-gray-400">
+                            <img
+                              src={
+                                ticketItem.cover ||
+                                "https://i.ibb.co/MR2tFCg/Logo.png"
+                              }
+                              alt="cover"
+                              className="w-10 h-10 rounded-full"
+                            />
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-sm whitespace-nowrap">
+                        <div>
+                          <h4 className="text-gray-700 dark:text-gray-200">
+                            {ticketItem.priority}
+                          </h4>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-sm whitespace-nowrap">
+                        <div>
+                          <h4 className="text-gray-700 dark:text-gray-200">
+                            {ticketItem.end_at}
+                          </h4>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-sm whitespace-nowrap">
+                        <div>
+                          <button
+                            id="dropdownHelperButton"
+                            onClick={toggleDropdown}
+                            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            type="button"
+                          >
+                            state
+                            <svg
+                              className="w-2.5 h-2.5 ms-3"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 10 6"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="m1 1 4 4 4-4"
+                              />
+                            </svg>
+                          </button>
+
+                          <div
+                            id="dropdownHelper"
+                            className={`z-10 ${
+                              drop ? "block" : "hidden"
+                            } bg-white divide-y divide-gray-100 rounded-lg shadow w-60 dark:bg-gray-700 dark:divide-gray-600`}
+                          >
+                            <ul
+                              className="p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200"
+                              aria-labelledby="dropdownHelperButton"
+                            >
+                              <li>
+                                <div className="flex p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                                  <div className="flex items-center h-5">
+                                    <input
+                                      id="helper-checkbox-1"
+                                      aria-describedby="helper-checkbox-text-1"
+                                      type="checkbox"
+                                      value=""
+                                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                                    />
+                                  </div>
+                                  <div className="ms-2 text-sm">
+                                    <label
+                                      htmlFor="helper-checkbox-1"
+                                      className="font-medium text-gray-900 dark:text-gray-300"
+                                    >
+                                      <div>Enable notifications</div>
+                                      <p
+                                        id="helper-checkbox-text-1"
+                                        className="text-xs font-normal text-gray-500 dark:text-gray-300"
+                                      >
+                                        Some helpful instruction goes over here.
+                                      </p>
+                                    </label>
+                                  </div>
+                                </div>
+                              </li>
+                              <li>
+                                <div className="flex p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                                  <div className="flex items-center h-5">
+                                    <input
+                                      id="helper-checkbox-2"
+                                      aria-describedby="helper-checkbox-text-2"
+                                      type="checkbox"
+                                      value=""
+                                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                                    />
+                                  </div>
+                                  <div className="ms-2 text-sm">
+                                    <label
+                                      htmlFor="helper-checkbox-2"
+                                      className="font-medium text-gray-900 dark:text-gray-300"
+                                    >
+                                      <div>Enable 2FA auth</div>
+                                      <p
+                                        id="helper-checkbox-text-2"
+                                        className="text-xs font-normal text-gray-500 dark:text-gray-300"
+                                      >
+                                        Some helpful instruction goes over here.
+                                      </p>
+                                    </label>
+                                  </div>
+                                </div>
+                              </li>
+                              <li>
+                                <div className="flex p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                                  <div className="flex items-center h-5">
+                                    <input
+                                      id="helper-checkbox-3"
+                                      aria-describedby="helper-checkbox-text-3"
+                                      type="checkbox"
+                                      value=""
+                                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                                    />
+                                  </div>
+                                  <div className="ms-2 text-sm">
+                                    <label
+                                      htmlFor="helper-checkbox-3"
+                                      className="font-medium text-gray-900 dark:text-gray-300"
+                                    >
+                                      <div>Subscribe newsletter</div>
+                                      <p
+                                        id="helper-checkbox-text-3"
+                                        className="text-xs font-normal text-gray-500 dark:text-gray-300"
+                                      >
+                                        Some helpful instruction goes over here.
+                                      </p>
+                                    </label>
+                                  </div>
+                                </div>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </div>
               </div>
             </div>

@@ -12,6 +12,7 @@ ticketRouter.delete("/delete/:id",authentication,deleteTicket);
 ticketRouter.put("/update/:ticket_id",authentication,updateTicket);
 ticketRouter.get("/all",authentication,selectTicketForUserId);
 ticketRouter.get("/all/:id",selectTicketByUserId);
+
 ticketRouter.post("/favorite/:id",favoriteTicket);
 ticketRouter.delete("/favorite/delete/:id",removeFavoriteTicket);
 

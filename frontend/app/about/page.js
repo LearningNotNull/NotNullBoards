@@ -10,14 +10,12 @@ const page = () => {
       </div>
       <div class="sm:w-1/2 p-5">
         <div class="text">
-          
           <h2 class="my-4 font-bold text-3xl  sm:text-4xl text-center">
             About <span class="text-indigo-600">Our Company</span>
           </h2>
-          <p class="text-gray-700 text-center">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid,
-            commodi doloremque, fugiat illum magni minus nisi nulla numquam
-            obcaecati placeat quia, repellat tempore voluptatum.
+          <p class="text-gray-900 text-center text-xl">
+            Let's discover how you can create your case here and follow up on it
+            with your team.
           </p>
         </div>
       </div>
